@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Field from "./Field";
-import FormError from "./FormError";
+import FormError, { type Failure } from "./FormError";
 import Icon from "./Icons";
 import { CLIENT_INBOX, EMAIL_RE, sendToInbox } from "@/lib/forms";
 
@@ -18,7 +18,7 @@ export default function ContactForm() {
   const [hp, setHp] = useState(""); // honeypot — real visitors never see or fill it
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>("idle");
-  const [failure, setFailure] = useState("");
+  const [failure, setFailure] = useState<Failure | null>(null);
 
   const set = <K extends keyof Values>(key: K, value: Values[K]) => setV((x) => ({ ...x, [key]: value }));
 
@@ -51,7 +51,7 @@ export default function ContactForm() {
       setV(empty);
       setStatus("sent");
     } else {
-      setFailure(result.error);
+      setFailure({ error: result.error, status: result.status, fallbackHref: result.fallbackHref });
       setStatus("error");
     }
   }
@@ -106,7 +106,7 @@ export default function ContactForm() {
       <button type="submit" className="btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={status === "sending"}>
         <Icon name="send" /> {status === "sending" ? "Sending…" : "Send message"}
       </button>
-      {status === "error" && <FormError what="message" inbox={CLIENT_INBOX} detail={failure} />}
+      {status === "error" && <FormError what="message" inbox={CLIENT_INBOX} failure={failure} />}
     </form>
   );
 }

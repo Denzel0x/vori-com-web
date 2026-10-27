@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import Field from "./Field";
-import FormError from "./FormError";
+import FormError, { type Failure } from "./FormError";
 import Icon from "./Icons";
 import { useModal } from "./useModal";
 import type { Applicant } from "./ResumeDialog";
@@ -27,7 +27,7 @@ export default function ApplyDialog({ role, onClose, onSent }: { role: Role; onC
   const [hp, setHp] = useState(""); // honeypot — real applicants never see or fill it
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>("idle");
-  const [failure, setFailure] = useState("");
+  const [failure, setFailure] = useState<Failure | null>(null);
 
   const set = <K extends keyof Form>(key: K, value: Form[K]) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -69,7 +69,7 @@ export default function ApplyDialog({ role, onClose, onSent }: { role: Role; onC
     if (result.ok) {
       onSent({ name: c.name, role: c.role, track: c.track });
     } else {
-      setFailure(result.error);
+      setFailure({ error: result.error, status: result.status, fallbackHref: result.fallbackHref });
       setStatus("error");
     }
   }
@@ -195,7 +195,7 @@ export default function ApplyDialog({ role, onClose, onSent }: { role: Role; onC
                 </span>
               </div>
 
-              {status === "error" && <FormError what="application" inbox={CAREERS_INBOX} detail={failure} />}
+              {status === "error" && <FormError what="application" inbox={CAREERS_INBOX} failure={failure} />}
 
               <div className="dialog-actions">
                 <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>

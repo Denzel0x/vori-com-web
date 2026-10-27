@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Field from "./Field";
-import FormError from "./FormError";
+import FormError, { type Failure } from "./FormError";
 import Icon from "./Icons";
 import { CLIENT_INBOX, EMAIL_RE, sendToInbox } from "@/lib/forms";
 
@@ -44,7 +44,7 @@ export default function StartProjectForm() {
   const [hp, setHp] = useState(""); // honeypot
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>("idle");
-  const [failure, setFailure] = useState("");
+  const [failure, setFailure] = useState<Failure | null>(null);
 
   function update<K extends keyof Values>(key: K, value: Values[K]) {
     setData((d) => ({ ...d, [key]: value }));
@@ -87,7 +87,7 @@ export default function StartProjectForm() {
     if (result.ok) {
       setStatus("sent");
     } else {
-      setFailure(result.error);
+      setFailure({ error: result.error, status: result.status, fallbackHref: result.fallbackHref });
       setStatus("error");
     }
   }
@@ -198,7 +198,7 @@ export default function StartProjectForm() {
             {last ? (<><Icon name="send" /> {status === "sending" ? "Sending…" : "Send project details"}</>) : (<>Continue <Icon name="arrow" /></>)}
           </button>
         </div>
-        {status === "error" && <FormError what="project details" inbox={CLIENT_INBOX} detail={failure} />}
+        {status === "error" && <FormError what="project details" inbox={CLIENT_INBOX} failure={failure} />}
       </form>
     </div>
   );

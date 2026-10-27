@@ -41,17 +41,25 @@ Until you click it, nothing is forwarded.
 After that, every submission arrives as a normal email, with the visitor's address as Reply-To, so you
 can just hit Reply.
 
+### Checking that the forms deliver (do this after every deploy)
+
+Open **`/form-check`** on your live site (it is not linked anywhere and is hidden from search engines).
+Press **Send a test** for each inbox. The page shows exactly what FormSubmit replied, with a plain-English
+explanation, so you never have to guess.
+
 ### If a form says "We couldn't send your ... just now"
 
-That message means FormSubmit did not accept the submission, so nothing was delivered. While you run
-`npm run dev`, a grey **Developer note** under the message tells you why (visitors never see it), and
-the terminal / browser console print the details. The usual causes:
+Nothing was delivered. The message under the form ends with an **Error code**, and the visitor gets a link to
+email you directly with their message already written. Codes:
 
-| Developer note says | Fix |
+| Error code | Meaning / fix |
 | --- | --- |
-| the inbox needs activation / no readable reply | Open the target inbox (`career@invorious.com` or `hello@invorious.com`) **and its spam folder**, find FormSubmit's email and click **Activate Form**, then send again. |
-| blocked / network | An ad blocker, VPN or firewall is blocking `formsubmit.co`, or you are offline. Try another browser or disable the blocker for localhost. |
-| anything else | Copy the note and check it against https://formsubmit.co. |
+| `NOT-ACTIVATED` | FormSubmit hasn't been activated for that inbox. Open `hello@invorious.com` / `career@invorious.com` **and the spam folder**, click FormSubmit's **Activate Form** email, then try again. FormSubmit keeps submissions made before activation for 30 days and delivers them once you activate. |
+| `NETWORK` | The browser got no readable reply from `formsubmit.co`. Usually the same activation issue; otherwise an ad blocker, VPN or firewall is blocking `formsubmit.co`, or the visitor is offline. `/form-check` shows the exact browser error. |
+| `HTTP-4xx` / `HTTP-5xx` | FormSubmit refused or failed. `/form-check` shows its exact message. |
+| `REJECTED` | FormSubmit replied "no" with a message — see `/form-check`. |
+
+While running `npm run dev`, a grey **Developer note** under the message also explains the cause.
 
 ### Good to know
 
