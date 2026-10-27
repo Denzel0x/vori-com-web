@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://invorious.com/sitemap.xml
